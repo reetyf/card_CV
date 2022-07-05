@@ -10,8 +10,19 @@ from skimage.transform import resize
 import xml.etree.ElementTree as ET
 from tqdm import tqdm
 import warnings
-def preprocess(img_x,img_y,deep,iterations = 2757):    
-    warnings.filterwarnings('ignore')
+import helpers
+warnings.filterwarnings('ignore')
+
+def preprocess(img_x,img_y,deep,iterations = 2757):
+    '''
+    Processes the data to be used in modelling
+    Parameters: 
+    img_x - desired x coordinate
+    img_y - desired y coordinate
+    deep - boolean , loading for deep learning
+    iterations - default 2757, can define less for quicker runtimes
+    '''
+    #use glob to read files of both images and XML
     img_path = '/Users/Daniel/Desktop/brainstation/capstone/database/Images/Images/*'
     g1 = glob.glob(img_path)
     g1 = np.array(g1)
@@ -20,6 +31,7 @@ def preprocess(img_x,img_y,deep,iterations = 2757):
     g2 = glob.glob(annotation_path)
     g2 = np.array(g2)
 
+    # sort then shuffle both in the same manner to line u
     g1.sort()
     g2.sort()
     p = np.random.permutation(len(g1)) 
@@ -30,23 +42,23 @@ def preprocess(img_x,img_y,deep,iterations = 2757):
 
 
     def suit_getter(suit):
-            suit_num = np.NaN
-            if(suit == 'S'):
-                suit_num = 0
-            elif(suit == 'C'):
-                suit_num = 1
-            elif(suit == 'H'):
-                suit_num = 2
-            else:
-                suit_num = 3 
-            return suit_num
-
-
-    def card_maker():
-        print('')
+        '''
+        Returns suit encoded number.
+        '''
+        suit_num = np.NaN
+        if(suit == 'S'):
+            suit_num = 0
+        elif(suit == 'C'):
+            suit_num = 1
+        elif(suit == 'H'):
+            suit_num = 2
+        else:
+            suit_num = 3 
+        return suit_num
         
        
     count = 0
+    # read in one image and resize, then append
     for one_file in g1:
         count +=1
         if count == iterations:
@@ -58,6 +70,7 @@ def preprocess(img_x,img_y,deep,iterations = 2757):
 
     card_class = []
     count = 0
+    # parse XML then enter the card class
     for one_file in g2:
         tree = ET.parse(one_file)
         root = tree.getroot()
@@ -79,7 +92,7 @@ def preprocess(img_x,img_y,deep,iterations = 2757):
             suit_num = suit_getter(second_char)     
             card_to_add = playingcards.Card(asint,suit_num) 
             card_class.append(card_to_add)
-        else: # only getss here if K,Q,J,A,Joker
+        else: # only gets here if K,Q,J,A,Joker
             if(first_char == 'K'): # King
                 suit_num = suit_getter(second_char)
                 rank = 13 # King is rank 13
@@ -95,13 +108,13 @@ def preprocess(img_x,img_y,deep,iterations = 2757):
                 rank = 1 # Ace is rank 1
                 card_to_add = playingcards.Card(rank,suit_num) 
                 card_class.append(card_to_add)
-            elif((first_char =='J') & (second_char != 'O')): # if J and not O will decide on JOker functionality later
+            elif((first_char =='J') & (second_char != 'O')): # Jack 
                 suit_num = suit_getter(second_char)
                 rank = 11 # Jack is rank 11
                 card_to_add =playingcards.Card(rank,suit_num) 
                 card_class.append(card_to_add)
             else:
-                card_class.append('Joker') # joker placeholder
+                card_class.append('Joker') # joker 
 
     card_img_arrays =np.array(card_img_arrays)
     img_df = pd.DataFrame()
@@ -134,7 +147,10 @@ def preprocess(img_x,img_y,deep,iterations = 2757):
             card_df_pixels.loc[i,'suit'] = card_df_pixels.loc[i,'card_class'].suit_name
     card_df_pixels['is_red'] = np.where((card_df_pixels['suit'] == 'Hearts') | (card_df_pixels['suit'] == 'Diamonds'),1,0)
     
-    def suit_getter(suit):
+    def suit_getter2(suit):
+        '''
+        Another version of converting suits to encoded numbers.
+        '''
         suit_num = np.NaN
         if(suit == 'Spades'):
             suit_num = 3
@@ -147,13 +163,17 @@ def preprocess(img_x,img_y,deep,iterations = 2757):
         else:
             suit_num = 4
         return suit_num
-    card_df_pixels['suit_num'] = card_df_pixels['suit'].apply(suit_getter)
+    card_df_pixels['suit_num'] = card_df_pixels['suit'].apply(suit_getter2)
     
     
     
     card_df_pixels["card_string"]=card_df_pixels["card_class"].apply(str)
 
     def card_enumerator(card_string):
+        '''
+        returns an encoded card number from a string representation
+        
+        '''
         if(card_string == 'Joker'):
             return 52
         else:
@@ -166,12 +186,4 @@ def preprocess(img_x,img_y,deep,iterations = 2757):
             return full.index(card_string)
     card_df_pixels['card_number'] = card_df_pixels["card_string"].apply(card_enumerator)
     return card_df_pixels
-
-
-def view_head(pixel_df, x_dim,y_dim,num = 5):
-    for i in range(0,5):
-        plt.imshow(pixel_df.loc[i,'img_card_arr'].reshape(y_dim,x_dim,3))
-        plt.title(str(pixel_df.loc[i,'card_class']))
-        plt.show()
-
 
