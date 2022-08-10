@@ -5,7 +5,6 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as  plt
 import glob
-import playingcards
 from skimage.transform import resize
 import xml.etree.ElementTree as ET
 from tqdm import tqdm
@@ -56,6 +55,22 @@ def preprocess(img_x,img_y,deep,iterations = 2757):
             suit_num = 3 
         return suit_num
         
+        
+    def suit_getter_name(suit):
+        '''
+        Returns suit encoded number.
+        '''
+        suit_num = np.NaN
+        if(suit == 'S'):
+            suit_name = 'Spades'
+        elif(suit == 'C'):
+            suit_name = 'Clubs'
+        elif(suit == 'H'):
+            suit_name = 'Hearts'
+        else:
+            suit_name = 'Diamonds' 
+        return suit_name
+        
        
     count = 0
     # read in one image and resize, then append
@@ -84,34 +99,34 @@ def preprocess(img_x,img_y,deep,iterations = 2757):
         if(first_char == '1'): # first do 10s
             rank = 10
             third_char = card_answer[2]
-            suit_num = suit_getter(third_char)
-            card_to_add = playingcards.Card(rank,suit_num)
+            suit_num = suit_getter_name(third_char)
+            card_to_add = f'10 of {suit_num}'
             card_class.append(card_to_add)
         elif(str.isdigit(first_char)): #2-9 done
             asint = int(first_char)
-            suit_num = suit_getter(second_char)     
-            card_to_add = playingcards.Card(asint,suit_num) 
+            suit_num = suit_getter_name(second_char)     
+            card_to_add = f'{asint} of {suit_num}'
             card_class.append(card_to_add)
         else: # only gets here if K,Q,J,A,Joker
             if(first_char == 'K'): # King
-                suit_num = suit_getter(second_char)
+                suit_num = suit_getter_name(second_char)
                 rank = 13 # King is rank 13
-                card_to_add = playingcards.Card(rank,suit_num) 
+                card_to_add = f'King of {suit_num}'
                 card_class.append(card_to_add)
             elif(first_char =='Q'): # queen
-                suit_num = suit_getter(second_char)
+                suit_num = suit_getter_name(second_char)
                 rank = 12 # Queen is rank 12
-                card_to_add = playingcards.Card(rank,suit_num) 
+                card_to_add = f'Queen of {suit_num}'
                 card_class.append(card_to_add)
             elif(first_char =='A'): # ace
-                suit_num = suit_getter(second_char)
+                suit_num = suit_getter_name(second_char)
                 rank = 1 # Ace is rank 1
-                card_to_add = playingcards.Card(rank,suit_num) 
+                card_to_add = f'Ace of {suit_num}'
                 card_class.append(card_to_add)
             elif((first_char =='J') & (second_char != 'O')): # Jack 
-                suit_num = suit_getter(second_char)
+                suit_num = suit_getter_name(second_char)
                 rank = 11 # Jack is rank 11
-                card_to_add =playingcards.Card(rank,suit_num) 
+                card_to_add = f'Jack of {suit_num}'
                 card_class.append(card_to_add)
             else:
                 card_class.append('Joker') # joker 
@@ -144,7 +159,7 @@ def preprocess(img_x,img_y,deep,iterations = 2757):
         if(str(card_df_pixels.loc[i,'card_class']) == 'Joker'):
             card_df_pixels.loc[i,'suit'] = 'Joker'
         else:
-            card_df_pixels.loc[i,'suit'] = card_df_pixels.loc[i,'card_class'].suit_name
+            card_df_pixels.loc[i,'suit'] = card_df_pixels.loc[i,'card_class'].split(' ')[-1]
     card_df_pixels['is_red'] = np.where((card_df_pixels['suit'] == 'Hearts') | (card_df_pixels['suit'] == 'Diamonds'),1,0)
     
     def suit_getter2(suit):
@@ -164,11 +179,6 @@ def preprocess(img_x,img_y,deep,iterations = 2757):
             suit_num = 4
         return suit_num
     card_df_pixels['suit_num'] = card_df_pixels['suit'].apply(suit_getter2)
-    
-    
-    
-    card_df_pixels["card_string"]=card_df_pixels["card_class"].apply(str)
-
     def card_enumerator(card_string):
         '''
         returns an encoded card number from a string representation
@@ -184,6 +194,6 @@ def preprocess(img_x,img_y,deep,iterations = 2757):
                 for rank in ranks:
                     full.append(f'{rank} of {suit}')
             return full.index(card_string)
-    card_df_pixels['card_number'] = card_df_pixels["card_string"].apply(card_enumerator)
+    card_df_pixels['card_number'] = card_df_pixels["card_class"].apply(card_enumerator)
     return card_df_pixels
 
