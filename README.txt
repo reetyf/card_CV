@@ -31,4 +31,3 @@ elementpath
 XGBoost (conda install -c conda-forge xgboost)
 sk-learn (conda install scikit-learn)
 tensorflow (conda install -c conda-forge tensorflow)
-playingcard (pip install git+git://github.com/Prodxgy/playingcards.py.git)
