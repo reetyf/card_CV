@@ -18,7 +18,7 @@ The notebooks are to be run in order:
 
 Be aware that the estimated loading times for the first three notebooks is 7-10 minutes. For the last notebook, loading is done in 2-3 minutes.
 
-Necessary Imports: (instruction: conda install _________ unless otherwise noted)
+Necessary Imports: (instruction: pip install -r requirements.txt)
 
 pandas
 numpy
