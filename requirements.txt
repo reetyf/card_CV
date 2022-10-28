@@ -1,0 +1,11 @@
+pandas
+numpy
+matplotlib
+opencv-python
+seaborn
+glob2 
+tqdm
+elementpath
+XGBoost
+scikit-learn
+tensorflow 
