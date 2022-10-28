@@ -21,13 +21,23 @@ Be aware that the estimated loading times for the first three notebooks is 7-10 
 Necessary Imports: (instruction: pip install -r requirements.txt)
 
 pandas
+
 numpy
+
 matplotlib
+
 opencv (conda install opencv-python)
+
 seaborn
+
 glob (conda install glob2)
+
 tqdm
+
 elementpath
+
 XGBoost (conda install -c conda-forge xgboost)
+
 sk-learn (conda install scikit-learn)
+
 tensorflow (conda install -c conda-forge tensorflow)
