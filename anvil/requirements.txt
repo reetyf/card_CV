@@ -1,0 +1,5 @@
+numpy
+joblib
+opencv-python
+anvil-uplink==0.4.1
+scikit-learn==1.0.2
