@@ -1,3 +1,8 @@
+# Predicting Playing Cards from Images Using Machine Learning
+
+## SEE DEMO [HERE](https://hweinsch.squarespace.com/playing-card-recognition)
+
+
 Images are from a public dataset downloadable from Kaggle
 Click To download: https://www.kaggle.com/datasets/jaypradipshah/the-complete-playing-card-dataset/download
 
